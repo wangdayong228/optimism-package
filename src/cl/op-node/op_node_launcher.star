@@ -196,6 +196,8 @@ def get_beacon_config(
         "--safedb.path={0}".format(BEACON_DATA_DIRPATH_ON_SERVICE_CONTAINER),
         "--altda.enabled=" + str(da_server_context.enabled),
         "--altda.da-server=" + da_server_context.http_url,
+        "--l1.beacon.ignore",
+        "--l1.trustrpc"
     ]
 
     # configure files

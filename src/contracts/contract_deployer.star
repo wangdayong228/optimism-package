@@ -110,6 +110,11 @@ def deploy_contracts(
             "proxyAdminOwner": read_chain_cmd("l1ProxyAdmin", l2_chain_ids_list[0]),
         },
         "chains": [],
+        "globalDeployOverrides": {
+            "proofMaturityDelaySeconds": 12,
+            "faultGameWithdrawalDelay": 12,
+            "dangerouslyAllowCustomDisputeParameters": True,
+        }
     }
 
     absolute_prestate = ""
@@ -193,7 +198,7 @@ def deploy_contracts(
             StoreSpec(
                 src="/network-data",
                 name="op-deployer-configs",
-            )
+            ),
         ],
         files={
             "/network-data": op_deployer_init.files_artifacts[0],
@@ -217,6 +222,7 @@ def deploy_contracts(
     )
 
     apply_cmds = [
+        "set -x",
         "op-deployer apply --l1-rpc-url $L1_RPC_URL --private-key $PRIVATE_KEY --workdir /network-data",
     ]
     for chain in optimism_args.chains:
@@ -247,6 +253,7 @@ def deploy_contracts(
             "/network-data": op_deployer_configure.files_artifacts[0],
         },
         run=" && ".join(apply_cmds),
+        wait="20m",
     )
 
     for chain in optimism_args.chains:
