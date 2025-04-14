@@ -1,4 +1,5 @@
-prometheus = import_module("github.com/kurtosis-tech/prometheus-package/main.star")
+# prometheus = import_module("github.com/kurtosis-tech/prometheus-package/main.star")
+prometheus = import_module("github.com/wangdayong228/prometheus-package/main.star")
 
 
 def launch_prometheus(
