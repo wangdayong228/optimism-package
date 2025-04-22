@@ -28,10 +28,12 @@ BEACON_DATA_DIRPATH_ON_SERVICE_CONTAINER = "/data/op-node/op-node-beacon-data"
 BEACON_TCP_DISCOVERY_PORT_ID = "tcp-discovery"
 BEACON_UDP_DISCOVERY_PORT_ID = "udp-discovery"
 BEACON_HTTP_PORT_ID = "http"
+DELVE_TCP_PORT_ID = "delve"
 
 # Port nums
 BEACON_DISCOVERY_PORT_NUM = 9003
 BEACON_HTTP_PORT_NUM = 8547
+DELVE_TCP_PORT_NUM = 2345
 
 
 def get_used_ports(discovery_port):
@@ -46,6 +48,10 @@ def get_used_ports(discovery_port):
             BEACON_HTTP_PORT_NUM,
             ethereum_package_shared_utils.TCP_PROTOCOL,
             ethereum_package_shared_utils.HTTP_APPLICATION_PROTOCOL,
+        ),
+        DELVE_TCP_PORT_ID: ethereum_package_shared_utils.new_port_spec(
+            DELVE_TCP_PORT_NUM,
+            ethereum_package_shared_utils.TCP_PROTOCOL,
         ),
     }
     return used_ports
@@ -170,7 +176,11 @@ def get_beacon_config(
     )
 
     cmd = [
-        "op-node",
+        "dlv", 
+        "--listen={0}".format(DELVE_TCP_PORT_ID), 
+        "--headless=true", "--api-version=2", "--accept-multiclient", "--continue", "--log", "exec", 
+        "/usr/local/bin/op-node",
+        "--",
         "--l2={0}".format(EXECUTION_ENGINE_ENDPOINT),
         "--l2.jwt-secret=" + ethereum_package_constants.JWT_MOUNT_PATH_ON_CONTAINER,
         "--verifier.l1-confs=1",

@@ -28,11 +28,12 @@ BEACON_DATA_DIRPATH_ON_SERVICE_CONTAINER = "/data/op-node/op-node-beacon-data"
 BEACON_TCP_DISCOVERY_PORT_ID = "tcp-discovery"
 BEACON_UDP_DISCOVERY_PORT_ID = "udp-discovery"
 BEACON_HTTP_PORT_ID = "http"
+DELVE_TCP_PORT_ID = "delve"
 
 # Port nums
 BEACON_DISCOVERY_PORT_NUM = 9003
 BEACON_HTTP_PORT_NUM = 8547
-
+DELVE_TCP_PORT_NUM = 2345
 
 def get_used_ports(discovery_port):
     used_ports = {
@@ -46,6 +47,11 @@ def get_used_ports(discovery_port):
             BEACON_HTTP_PORT_NUM,
             ethereum_package_shared_utils.TCP_PROTOCOL,
             ethereum_package_shared_utils.HTTP_APPLICATION_PROTOCOL,
+        ),
+        DELVE_TCP_PORT_ID: ethereum_package_shared_utils.new_port_spec(
+            DELVE_TCP_PORT_NUM,
+            ethereum_package_shared_utils.TCP_PROTOCOL,
+            wait="1m",  # 添加等待标志  
         ),
     }
     return used_ports
@@ -91,6 +97,7 @@ def launch(
         },
     )
 
+    plan.print("participant.cl_log_level: {0}".format(participant.cl_log_level))
     log_level = ethereum_package_input_parser.get_client_log_level_or_default(
         participant.cl_log_level, global_log_level, VERBOSITY_LEVELS
     )
@@ -170,8 +177,21 @@ def get_beacon_config(
     )
 
     cmd = [
-        "op-node",
-        "--log.level=" + log_level,
+        "dlv", 
+        "--listen=:{0}".format(DELVE_TCP_PORT_NUM), 
+        "--headless=true", 
+        "--api-version=2", 
+        "--accept-multiclient", 
+        "--only-same-user=false",  # 允许不同用户连接
+        "--check-go-version=false",  # 关闭 Go 版本检查
+        "--continue", 
+        "--log", 
+        "--log-output=debugger,rpc,dap,fncall",  # 添加 fncall 也很有用
+        "--log-dest=/tmp/dlv.log",
+        "exec", 
+        "/usr/local/bin/op-node",
+        "--",
+        "--log.level=" + "DEBUG", #+ log_level,
         "--l2={0}".format(EXECUTION_ENGINE_ENDPOINT),
         "--l2.jwt-secret=" + ethereum_package_constants.JWT_MOUNT_PATH_ON_CONTAINER,
         "--verifier.l1-confs=1",
