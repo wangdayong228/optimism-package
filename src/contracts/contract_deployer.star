@@ -114,6 +114,8 @@ def deploy_contracts(
             "proofMaturityDelaySeconds": 12,
             "faultGameWithdrawalDelay": 12,
             "dangerouslyAllowCustomDisputeParameters": True,
+            "faultGameClockExtension": 12,
+            "faultGameMaxClockDuration": 12,
         }
     }
 
