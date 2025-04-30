@@ -115,7 +115,9 @@ def deploy_contracts(
             "faultGameWithdrawalDelay": 12,
             "dangerouslyAllowCustomDisputeParameters": True,
             "faultGameClockExtension": 12,
-            "faultGameMaxClockDuration": 12,
+            "faultGameMaxClockDuration": 24,
+            "preimageOracleChallengePeriod": 0,
+            "disputeGameFinalityDelaySeconds": 0,
         }
     }
 
@@ -183,6 +185,29 @@ def deploy_contracts(
                     "daResolveWindow": altda_args.da_resolve_window,
                     "daBondSize": altda_args.da_bond_size,
                 },
+            }
+        )
+        intent_chain.update(
+            {
+                "dangerousAdditionalDisputeGames": [
+                    {
+                        "respectedGameType": 0,
+                        "faultGameAbsolutePrestate": absolute_prestate,
+                        "faultGameMaxDepth": 73,
+                        "faultGameSplitDepth": 30,
+                        # "faultGameClockExtension": 10800,
+                        # "faultGameMaxClockDuration": 302400,
+                        "dangerouslyAllowCustomDisputeParameters": True,
+                        "vmType": "CANNON1",
+                        "useCustomOracle": True,
+                        "oracleMinProposalSize": 0,
+                        "oracleChallengePeriodSeconds": 0,
+                        # "OracleChallengePeriodSeconds": 1,
+                        "makeRespected": False,
+                        "faultGameClockExtension": 12,
+                        "faultGameMaxClockDuration": 24,
+                    }
+                ],
             }
         )
         for index, fork_key, activation_timestamp in hardfork_schedule:
