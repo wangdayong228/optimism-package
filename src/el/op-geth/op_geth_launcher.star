@@ -183,11 +183,11 @@ def get_config(
         "--http.addr=0.0.0.0",
         "--http.vhosts=*",
         "--http.corsdomain=*",
-        "--http.api=admin,engine,net,eth,web3,debug,miner",
+        "--http.api=admin,engine,net,eth,web3,debug,miner,txpool",
         "--ws",
         "--ws.addr=0.0.0.0",
         "--ws.port={0}".format(WS_PORT_NUM),
-        "--ws.api=admin,engine,net,eth,web3,debug,miner",
+        "--ws.api=admin,engine,net,eth,web3,debug,miner,txpool",
         "--ws.origins=*",
         "--allow-insecure-unlock",
         "--authrpc.port={0}".format(ENGINE_RPC_PORT_NUM),
@@ -199,6 +199,10 @@ def get_config(
         "--rpc.allow-unprotected-txs",
         "--discovery.port={0}".format(discovery_port),
         "--port={0}".format(discovery_port),
+        "--txpool.accountqueue=160",
+        "--txpool.accountslots=160",
+        "--txpool.globalqueue=50000",
+        "--txpool.globalslots=50000",
     ]
 
     # configure files
