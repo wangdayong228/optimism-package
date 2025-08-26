@@ -71,6 +71,7 @@ def run(plan, args):
             "L1_WS_URL": external_l1_args.el_ws_url,
             "L1_CHAIN_ID": external_l1_args.network_id,
             "L1_FUND_MNEMONIC": external_l1_args.fund_mnemonic,
+            "FUND_PRIVATE_KEY": external_l1_args.priv_key,
         }
 
         plan.print("Waiting for network to sync")
