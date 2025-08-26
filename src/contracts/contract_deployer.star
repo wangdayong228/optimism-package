@@ -76,7 +76,7 @@ def deploy_contracts(
             "/network-data": op_deployer_init.files_artifacts[0],
             "/fund-script": fund_script_artifact,
         },
-        run='bash /fund-script/fund.sh "{0}"'.format(l2_chain_ids),
+        run='bash /fund-script/fund.sh "{0}" "{1}"'.format(l2_chain_ids, l1_config_env_vars["L1_FUND_MNEMONIC"]),
     )
 
     hardfork_schedule = []

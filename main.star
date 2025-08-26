@@ -62,6 +62,7 @@ def run(plan, args):
 
         l1_rpc_url = external_l1_args.el_rpc_url
         l1_priv_key = external_l1_args.priv_key
+        
 
         l1_config_env_vars = {
             "L1_RPC_KIND": external_l1_args.rpc_kind,
@@ -69,6 +70,7 @@ def run(plan, args):
             "CL_RPC_URL": external_l1_args.cl_rpc_url,
             "L1_WS_URL": external_l1_args.el_ws_url,
             "L1_CHAIN_ID": external_l1_args.network_id,
+            "L1_FUND_MNEMONIC": external_l1_args.fund_mnemonic,
         }
 
         plan.print("Waiting for network to sync")
