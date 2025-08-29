@@ -65,6 +65,7 @@ def external_l1_network_params_input_parser(plan, input_args):
         el_ws_url=input_args["el_ws_url"],
         cl_rpc_url=input_args["cl_rpc_url"],
         priv_key=input_args["priv_key"],
+        fund_mnemonic=input_args["fund_mnemonic"],
     )
 
 
