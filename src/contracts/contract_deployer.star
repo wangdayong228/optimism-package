@@ -62,7 +62,7 @@ def deploy_contracts(
             "FUND_PRIVATE_KEY": ethereum_package_genesis_constants.PRE_FUNDED_ACCOUNTS[
                 19
             ].private_key,
-            "FUND_VALUE": "10ether",
+            "FUND_VALUE": "1000ether",
             "L1_NETWORK": str(l1_network),
         }
         | l1_config_env_vars,
