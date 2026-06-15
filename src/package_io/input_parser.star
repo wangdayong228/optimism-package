@@ -401,10 +401,13 @@ def parse_network_params(plan, input_args):
 
     # configure op-deployer
 
-    results["op_contract_deployer_params"] = default_op_contract_deployer_params()
-    results["op_contract_deployer_params"].update(
-        input_args.get("op_contract_deployer_params", {})
-    )
+    odp = default_op_contract_deployer_params()
+    user_odp = input_args.get("op_contract_deployer_params", {}) or {}
+    user_gdo = user_odp.get("global_deploy_overrides")
+    odp.update({k: v for k, v in user_odp.items() if k != "global_deploy_overrides"})
+    if user_gdo:
+        odp["global_deploy_overrides"].update(user_gdo)
+    results["op_contract_deployer_params"] = odp
 
     results["global_log_level"] = input_args.get("global_log_level", "info")
 

@@ -18,6 +18,52 @@ CANNED_VALUES = {
     "eip1559Elasticity": 6,
 }
 
+DEMO_GLOBAL_DEPLOY_OVERRIDES = {
+    "proofMaturityDelaySeconds": 12,
+    "faultGameWithdrawalDelay": 12,
+    "dangerouslyAllowCustomDisputeParameters": True,
+    "faultGameClockExtension": 12,
+    "faultGameMaxClockDuration": 24,
+    "preimageOracleChallengePeriod": 0,
+    "disputeGameFinalityDelaySeconds": 0,
+}
+
+DEMO_ADDITIONAL_GAME_CLOCK_EXTENSION = 12
+
+
+def _build_global_deploy_overrides(optimism_args):
+    yaml_gdo = optimism_args.op_contract_deployer_params.global_deploy_overrides
+    global_overrides = dict(DEMO_GLOBAL_DEPLOY_OVERRIDES)
+
+    max_clock = yaml_gdo.get("faultGameMaxClockDuration")
+    if max_clock != None:
+        global_overrides["faultGameMaxClockDuration"] = max_clock
+
+    absolute_prestate = yaml_gdo.get("faultGameAbsolutePrestate", "") or ""
+    if absolute_prestate:
+        global_overrides["faultGameAbsolutePrestate"] = absolute_prestate
+
+    return global_overrides, absolute_prestate
+
+
+def _dangerous_additional_dispute_games(absolute_prestate, max_clock_duration):
+    return [
+        {
+            "respectedGameType": 0,
+            "faultGameAbsolutePrestate": absolute_prestate,
+            "faultGameMaxDepth": 73,
+            "faultGameSplitDepth": 30,
+            "dangerouslyAllowCustomDisputeParameters": True,
+            "vmType": "CANNON1",
+            "useCustomOracle": True,
+            "oracleMinProposalSize": 0,
+            "oracleChallengePeriodSeconds": 0,
+            "makeRespected": False,
+            "faultGameClockExtension": DEMO_ADDITIONAL_GAME_CLOCK_EXTENSION,
+            "faultGameMaxClockDuration": max_clock_duration,
+        }
+    ]
+
 
 def deploy_contracts(
     plan, priv_key, l1_config_env_vars, optimism_args, l1_network, altda_args
@@ -98,6 +144,9 @@ def deploy_contracts(
             if activation_timestamp != None:
                 hardfork_schedule.append((index, fork_key, activation_timestamp))
 
+    global_overrides, absolute_prestate = _build_global_deploy_overrides(optimism_args)
+    max_clock_duration = global_overrides["faultGameMaxClockDuration"]
+
     intent = {
         "useInterop": optimism_args.interop.enabled,
         "l1ContractsLocator": optimism_args.op_contract_deployer_params.l1_artifacts_locator,
@@ -110,30 +159,8 @@ def deploy_contracts(
             "proxyAdminOwner": read_chain_cmd("l1ProxyAdmin", l2_chain_ids_list[0]),
         },
         "chains": [],
-        "globalDeployOverrides": {
-            "proofMaturityDelaySeconds": 12,
-            "faultGameWithdrawalDelay": 12,
-            "dangerouslyAllowCustomDisputeParameters": True,
-            "faultGameClockExtension": 12,
-            "faultGameMaxClockDuration": 24,
-            "preimageOracleChallengePeriod": 0,
-            "disputeGameFinalityDelaySeconds": 0,
-        }
+        "globalDeployOverrides": global_overrides,
     }
-
-    absolute_prestate = ""
-    if optimism_args.op_contract_deployer_params.global_deploy_overrides[
-        "faultGameAbsolutePrestate"
-    ]:
-        absolute_prestate = (
-            optimism_args.op_contract_deployer_params.global_deploy_overrides[
-                "faultGameAbsolutePrestate"
-            ]
-        )
-        intent["globalDeployOverrides"] = {
-            "dangerouslyAllowCustomDisputeParameters": True,
-            "faultGameAbsolutePrestate": absolute_prestate,
-        }
 
     for i, chain in enumerate(optimism_args.chains):
         chain_id = str(chain.network_params.network_id)
@@ -162,22 +189,9 @@ def deploy_contracts(
                     "systemConfigOwner": read_chain_cmd("systemConfigOwner", chain_id),
                     "unsafeBlockSigner": read_chain_cmd("sequencer", chain_id),
                 },
-                "dangerousAdditionalDisputeGames": [
-                    {
-                        "respectedGameType": 0,
-                        "faultGameAbsolutePrestate": absolute_prestate,
-                        "faultGameMaxDepth": 73,
-                        "faultGameSplitDepth": 30,
-                        "faultGameClockExtension": 10800,
-                        "faultGameMaxClockDuration": 302400,
-                        "dangerouslyAllowCustomDisputeParameters": True,
-                        "vmType": "CANNON1",
-                        "useCustomOracle": False,
-                        "oracleMinProposalSize": 0,
-                        "oracleChallengePeriodSeconds": 0,
-                        "makeRespected": False,
-                    }
-                ],
+                "dangerousAdditionalDisputeGames": _dangerous_additional_dispute_games(
+                    absolute_prestate, max_clock_duration
+                ),
                 "dangerousAltDAConfig": {
                     "useAltDA": altda_args.use_altda,
                     "daCommitmentType": altda_args.da_commitment_type,
@@ -185,29 +199,6 @@ def deploy_contracts(
                     "daResolveWindow": altda_args.da_resolve_window,
                     "daBondSize": altda_args.da_bond_size,
                 },
-            }
-        )
-        intent_chain.update(
-            {
-                "dangerousAdditionalDisputeGames": [
-                    {
-                        "respectedGameType": 0,
-                        "faultGameAbsolutePrestate": absolute_prestate,
-                        "faultGameMaxDepth": 73,
-                        "faultGameSplitDepth": 30,
-                        # "faultGameClockExtension": 10800,
-                        # "faultGameMaxClockDuration": 302400,
-                        "dangerouslyAllowCustomDisputeParameters": True,
-                        "vmType": "CANNON1",
-                        "useCustomOracle": True,
-                        "oracleMinProposalSize": 0,
-                        "oracleChallengePeriodSeconds": 0,
-                        # "OracleChallengePeriodSeconds": 1,
-                        "makeRespected": False,
-                        "faultGameClockExtension": 12,
-                        "faultGameMaxClockDuration": 24,
-                    }
-                ],
             }
         )
         for index, fork_key, activation_timestamp in hardfork_schedule:

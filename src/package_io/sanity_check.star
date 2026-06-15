@@ -116,7 +116,12 @@ OP_CONTRACT_DEPLOYER_PARAMS = [
     "global_deploy_overrides",
 ]
 
-OP_CONTRACT_DEPLOYER_GLOBAL_DEPLOY_OVERRIDES = ["faultGameAbsolutePrestate","proofMaturityDelaySeconds","faultGameWithdrawalDelay"]
+OP_CONTRACT_DEPLOYER_GLOBAL_DEPLOY_OVERRIDES = [
+    "faultGameAbsolutePrestate",
+    "proofMaturityDelaySeconds",
+    "faultGameWithdrawalDelay",
+    "faultGameMaxClockDuration",
+]
 
 ADDITIONAL_SERVICES_PARAMS = [
     "blockscout",
